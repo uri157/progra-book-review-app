@@ -1,8 +1,8 @@
-import { headers } from 'next/headers'
+import { headers, type UnsafeUnwrappedHeaders } from 'next/headers';
 import BookReviews from '@/components/BookReviews'
 
 function getBaseUrl() {
-  const h = headers()
+  const h = (headers() as unknown as UnsafeUnwrappedHeaders)
   const host = h.get('host') || 'localhost:3000'
   const proto = h.get('x-forwarded-proto') || 'http'
   return `${proto}://${host}`
@@ -15,7 +15,8 @@ async function getBook(id: string) {
   return res.json()
 }
 
-export default async function BookPage({ params }: { params: { id: string } }) {
+export default async function BookPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const book = await getBook(params.id)
   if (!book) return <div className="p-6">No encontrado</div>
 
@@ -47,7 +48,6 @@ export default async function BookPage({ params }: { params: { id: string } }) {
       )}
 
       {/* wrapper cliente que orquesta formulario + lista */}
-      {/* @ts-expect-error Server rendering Client */}
       <BookReviews bookId={book.id} />
     </main>
   )
