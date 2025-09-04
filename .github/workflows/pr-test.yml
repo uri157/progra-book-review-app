@@ -1,0 +1,51 @@
+name: CI - Tests on PR
+
+on:
+  pull_request:
+    branches: ["**"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Install deps
+        run: npm ci
+
+      # Si NO hay script "test" en package.json, lo salta (no falla el job por ausencia de tests).
+      - name: Detect test script
+        id: detect
+        run: |
+          node -e "const pkg=require('./package.json'); process.stdout.write(pkg.scripts && pkg.scripts.test ? 'true':'false')"
+
+      - name: Run tests (if present)
+        if: steps.detect.outputs.stdout == 'true'
+        env:
+          CI: "true"
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee test.log
+
+      - name: Upload test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-log
+          path: test.log
