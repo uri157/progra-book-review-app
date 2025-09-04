@@ -2,15 +2,10 @@
 
 Aplicación de reseñas de libros construida con [Next.js](https://nextjs.org).
 
-[![Build on PR](https://github.com/uri157/progra-book-review-app/actions/workflows/pr-build.yml/badge.svg)](https://github.com/uri157/progra-book-review-app/actions/workflows/pr-build.yml)
-[![Tests on PR](https://github.com/uri157/progra-book-review-app/actions/workflows/pr-test.yml/badge.svg)](https://github.com/uri157/progra-book-review-app/actions/workflows/pr-test.yml)
-[![Docker to GHCR](https://github.com/uri157/progra-book-review-app/actions/workflows/release-docker.yml/badge.svg)](https://github.com/uri157/progra-book-review-app/actions/workflows/release-docker.yml)
-
----
 
 ## 🌐 Producción
 
-**URL pública:** [https://progra4-deploy-vercel.vercel.app](https://progra4-deploy-vercel.vercel.app)
+**URL pública:** https://progra-book-review-2m5wa643e-uri157s-projects.vercel.app/
 
 ---
 
@@ -110,10 +105,6 @@ Los workflows viven en `.github/workflows/` y automatizan build, tests y publica
    * **CI - Tests on PR**
 3. Abrir cada job para ver logs y artifacts (`build.log`, `test.log`).
 
-**Badges (estado en tiempo real):**
-[![Build on PR](https://github.com/uri157/progra-book-review-app/actions/workflows/pr-build.yml/badge.svg)](https://github.com/uri157/progra-book-review-app/actions/workflows/pr-build.yml)
-[![Tests on PR](https://github.com/uri157/progra-book-review-app/actions/workflows/pr-test.yml/badge.svg)](https://github.com/uri157/progra-book-review-app/actions/workflows/pr-test.yml)
-
 
 ### B) Publicación de imagen en GHCR (al mergear a `main`)
 
@@ -125,8 +116,6 @@ Los workflows viven en `.github/workflows/` y automatizan build, tests y publica
    * `ghcr.io/uri157/progra-book-review-app:<version>`
    * `ghcr.io/uri157/progra-book-review-app:sha-<commit>`
 
-**Badge:**
-[![Docker to GHCR](https://github.com/uri157/progra-book-review-app/actions/workflows/release-docker.yml/badge.svg)](https://github.com/uri157/progra-book-review-app/actions/workflows/release-docker.yml)
 
 ### C) (Opcional) Probar el pull de la imagen
 
