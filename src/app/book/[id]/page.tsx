@@ -1,23 +1,33 @@
-import { headers, type UnsafeUnwrappedHeaders } from 'next/headers';
+// src/app/book/[id]/page.tsx
+import { headers } from 'next/headers'
 import BookReviews from '@/components/BookReviews'
+import FavoriteButton from '@/components/FavoriteButton'
 
-function getBaseUrl() {
-  const h = (headers() as unknown as UnsafeUnwrappedHeaders)
-  const host = h.get('host') || 'localhost:3000'
-  const proto = h.get('x-forwarded-proto') || 'http'
-  return `${proto}://${host}`
+async function getBaseUrl() {
+  const h = await headers()
+  const host = h.get('host')
+  if (host) {
+    const proto = h.get('x-forwarded-proto') || 'http'
+    return `${proto}://${host}`
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`
+  }
+  return process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 }
 
 async function getBook(id: string) {
-  const base = getBaseUrl()
+  const base = await getBaseUrl()
   const res = await fetch(`${base}/api/books/${id}`, { cache: 'no-store' })
   if (!res.ok) return null
   return res.json()
 }
 
-export default async function BookPage(props: { params: Promise<{ id: string }> }) {
-  const params = await props.params;
-  const book = await getBook(params.id)
+type PageCtx = { params: Promise<{ id: string }> }
+
+export default async function BookPage({ params }: PageCtx) {
+  const { id } = await params             // 👈 await
+  const book = await getBook(id)
   if (!book) return <div className="p-6">No encontrado</div>
 
   const meta: Array<[string, string | number | undefined]> = [
@@ -47,6 +57,7 @@ export default async function BookPage(props: { params: Promise<{ id: string }> 
         </article>
       )}
 
+      <FavoriteButton bookId={book.id} />
       {/* wrapper cliente que orquesta formulario + lista */}
       <BookReviews bookId={book.id} />
     </main>

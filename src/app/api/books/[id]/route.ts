@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
 import { getBookById } from '@/lib/googleBooks'
 
-export async function GET(_: Request, props: { params: Promise<{ id: string }> }) {
-  const params = await props.params;
-  const book = await getBookById(params.id)
+type Ctx = { params: Promise<{ id: string }> }
+
+export async function GET(_: Request, { params }: Ctx) {
+  const { id } = await params
+  const book = await getBookById(id)
   if (!book) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-  return NextResponse.json(book) // ← devuelve TODO
+  return NextResponse.json(book)
 }

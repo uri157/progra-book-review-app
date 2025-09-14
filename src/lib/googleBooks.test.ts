@@ -8,7 +8,7 @@ describe('googleBooks api', () => {
   beforeEach(() => {
     mockFetch.mockReset()
   })
-|
+
   it('searchBooks maps results', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
@@ -36,10 +36,34 @@ describe('googleBooks api', () => {
   it('getBookById maps volume info', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ id: 'a', volumeInfo: { title: 'T', authors: ['A'] } }),
+      json: async () => ({ id: 'a', volumeInfo: { title: 'T', authors: ['A'], imageLinks: { thumbnail: 'x' } } }),
     })
     const book = await getBookById('a')
-    expect(book).toMatchObject({ id: 'a', title: 'T', authors: ['A'], categories: [] })
+    expect(book).toMatchObject({ id: 'a', title: 'T', authors: ['A'], categories: [], thumbnail: 'x' })
+  })
+
+  it('includes API key when configured', async () => {
+    const oldKey = process.env.GOOGLE_BOOKS_API_KEY
+    process.env.GOOGLE_BOOKS_API_KEY = 'test-key'
+    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ items: [] }) })
+    await searchBooks('foo')
+    expect(mockFetch.mock.calls[0][0]).toContain('&key=test-key')
+    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ id: '1', volumeInfo: {} }) })
+    await getBookById('1')
+    expect(mockFetch.mock.calls[1][0]).toContain('?key=test-key')
+    process.env.GOOGLE_BOOKS_API_KEY = oldKey
+  })
+
+  it('omits API key when not configured', async () => {
+    const oldKey = process.env.GOOGLE_BOOKS_API_KEY
+    delete process.env.GOOGLE_BOOKS_API_KEY
+    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ items: [] }) })
+    await searchBooks('bar')
+    expect(mockFetch.mock.calls[0][0]).not.toContain('key=')
+    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ id: '2', volumeInfo: {} }) })
+    await getBookById('2')
+    expect(mockFetch.mock.calls[1][0]).not.toContain('key=')
+    process.env.GOOGLE_BOOKS_API_KEY = oldKey
   })
 })
 
